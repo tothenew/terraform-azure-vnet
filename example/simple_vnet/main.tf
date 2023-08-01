@@ -3,7 +3,7 @@ provider "azurerm" {
 }
 
 module "simple-vnet" {
-  source = "git::https://github.com/tothenew/terraform-azure-vnet.git"
+  source = "git::https://github.com/tothenew/terraform-azure-vnet.git?ref=vnet-v1"
   vnet_cidr_block = "10.0.0.0/16"
   subnet_type = "simple"
   num_simple_subnets = 2 
