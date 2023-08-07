@@ -2,11 +2,11 @@ resource "azurerm_virtual_network" "main" {
   name                = var.vnet_name
   resource_group_name = var.resource_group_name
   location            = var.location
-  address_space       = [var.vnet_cidr_block]
+  address_space       = [var.address_space] 
 
-  tags = merge(var.common_tags, tomap({
-    "Name" : "${var.project_name_prefix}-${var.environment}"
-  })) 
+  tags = merge(var.default_tags, var.common_tags ,  tomap({
+    "Name" : var.name_prefix  
+  }))  
 }
 
 # Create subnets in the VNet dynamically using the subnets module
@@ -17,19 +17,27 @@ module "subnets" {
   vnet_name           = azurerm_virtual_network.main.name
   location            = var.location
   subnets             = var.subnets
-  num_simple_subnets  = var.num_simple_subnets
+  subnet_bits         = var.subnet_bits 
   subnet_type         = var.subnet_type
-  project_name_prefix = var.project_name_prefix
-  environment         = var.environment 
+  name_prefix         = var.name_prefix 
   common_tags         = var.common_tags
+  default_tags        = var.default_tags 
+  pip_name            = var.pip_name
+  gateway_name        = var.gateway_name 
+  sku                 = var.sku   
+  allocation_method   = var.allocation_method 
 }
 
 # Create the NSG using the nsg module
-module "nsg" {
+module "nsg_main" {
   source = "../nsg"
   resource_group_name = var.resource_group_name
   location            = var.location
-  nsg_name            = var.nsg_name
+  default_tags        = var.default_tags 
+  common_tags         = var.common_tags
+  name_prefix         = var.name_prefix 
+  subnets             = var.subnets
+  depends_on = [ module.subnets ]
 }
 
 # Create the Route Table using the route_table module
@@ -38,50 +46,35 @@ module "route_table" {
   resource_group_name = var.resource_group_name
   location            = var.location
   route_table_name    = var.route_table_name
-  project_name_prefix = var.project_name_prefix
-  environment         = var.environment 
+  name_prefix         = var.name_prefix 
   common_tags         = var.common_tags
-  subnet_type         = var.subnet_type 
+  #subnet_type         = var.subnet_type 
   subnets             = var.subnets 
+  default_tags        = var.default_tags 
+  depends_on = [ module.subnets ]  
 }
 
+resource "azurerm_subnet_network_security_group_association" "main" {
+  for_each                  = { for k, v in var.subnets : k => v if v.is_nsg }  
+  subnet_id                 = module.subnets.subnet_ids[each.key]
+  network_security_group_id = module.nsg_main.nsg_ids[each.key]
 
-############################################################################################################################
-######################  If creating advance subnets, associate NSG and Route Table with dynamic subnets   ##################
-############################################################################################################################
+  depends_on = [module.nsg_main] 
+}  
 
-resource "azurerm_subnet_network_security_group_association" "dynamic_nsg_association" {
-  for_each             = var.subnet_type == "advance" ? var.subnets : {}
-  subnet_id            = module.subnets.subnet_ids[each.key]
-  network_security_group_id = module.nsg.nsg_id
-}
+resource "azurerm_subnet_nat_gateway_association" "main" { 
+  for_each          = { for k, v in var.subnets : k => v if v.is_natgateway }
+  nat_gateway_id    = module.subnets.nat_gateway_ids[each.key]  
+  subnet_id         = module.subnets.subnet_ids[each.key] 
 
-resource "azurerm_subnet_route_table_association" "dynamic_route_table_association" {
-  for_each       = var.subnet_type == "advance" ? { for name, subnet in var.subnets : name => subnet if subnet.is_public == true } : {} 
+  depends_on = [ module.subnets ] 
+}    
+
+resource "azurerm_subnet_route_table_association" "main" {
+  for_each       = { for k, v in var.subnets : k => v if v.associate_with_route_table == true }
   subnet_id      = module.subnets.subnet_ids[each.key]
-  route_table_id = module.route_table.main_route_table_id
-}
+  route_table_id = module.route_table.main_route_table_id  
 
-resource "azurerm_subnet_route_table_association" "advance_route_table_association" {
-  for_each       = { for name, subnet in var.subnets : name => subnet if subnet.is_public == false }
-  subnet_id      = module.subnets.subnet_ids[each.key]
-  route_table_id = module.route_table.advance_route_table_ids[0] 
-}
-
-
-############################################################################################################################### 
-##################    If creating simple subnets, associate NSG and Route Table with simple subnets   #####################
-###############################################################################################################################
-
-resource "azurerm_subnet_network_security_group_association" "simple_nsg_association" {
-  count                     = var.subnet_type == "simple" ? var.num_simple_subnets : 0
-  subnet_id                 = module.subnets.subnet_ids_simple[count.index] 
-  network_security_group_id = module.nsg.nsg_id
-}
-
-resource "azurerm_subnet_route_table_association" "simple_route_table_association" {
-  count          = var.subnet_type == "simple" ? var.num_simple_subnets : 0
-  subnet_id      = module.subnets.subnet_ids_simple[count.index] 
-  route_table_id = module.route_table.main_route_table_id
-}
+  depends_on = [module.subnets, module.route_table]
+}  
 

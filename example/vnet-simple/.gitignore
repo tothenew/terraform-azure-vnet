@@ -48,7 +48,7 @@ Gemfile.lock
 
 .terraform.tfstate.lock.info
 
-# SSH Key 
+# SSH Key
 private_ssh_key
 
 # generated readme by the pr-check job

@@ -13,16 +13,42 @@ variable "vnet_name" {
   type        = string
 }
 
+variable "gateway_name" {
+  type = string 
+}
+
+variable "pip_name" {
+  type = string 
+}
 
 variable "subnets" {
   description = "Map of subnets and their CIDR blocks."
   type        = map(object({
-    cidr_block = string
-    is_public   = bool
+    address_prefixes =  list(string) 
+    #is_public   = bool
+    associate_with_route_table = bool   
+    is_nsg = optional(bool, false)
+    network_security_group_association = optional(object({
+      security_rules            = optional(list(object({
+      name                       = string
+      priority                   = number
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+      })), [])
+    }))
+
+    is_natgateway = optional(bool, false) 
   }))
+
+  default = { }
 }
 
-variable "num_simple_subnets" {
+variable "subnet_bits" {
   description = "Number of simple subnets to create"
   type        = number
 }
@@ -37,12 +63,20 @@ variable "common_tags" {
   description = "A map of tags to add to all resources"
 }
 
-variable "project_name_prefix" {
+variable "name_prefix" {
   type        = string
   description = "A project name prefix for Route Table"
 }
 
-variable "environment" {
-  type        = string
-  description = "An Name for Route Table of the environment"
+variable "default_tags" {
+  type        = map(string)
+  description = "A map to add common tags to all the resources"
+}
+
+variable "sku" {
+  type = string 
+}
+
+variable "allocation_method" {
+  type = string
 }

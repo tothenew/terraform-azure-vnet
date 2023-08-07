@@ -1,59 +1,60 @@
 locals {
   subnet_names = keys(var.subnets)
-  create_advance_subnets = var.subnet_type == "advance"
-  create_simple_subnets  = var.subnet_type == "simple"
+  create_simple_subnets  = var.subnet_type == "subnet_simple"
 }
 
-
-resource "azurerm_subnet" "subnets" {
-  for_each             = var.subnet_type == "advance" ? var.subnets : {}
-  name                 = each.key
-  resource_group_name  = var.resource_group_name
+resource "azurerm_subnet" "subnet_main" {
+  for_each             = var.subnets
+  name                 = each.key 
+  resource_group_name  = var.resource_group_name  
   virtual_network_name = var.vnet_name
-  address_prefixes     = [each.value.cidr_block]  
-}
+  address_prefixes     = each.value["address_prefixes"]
+ # service_endpoints    = each.value["service_endpoints"] 
+} 
 
-resource "azurerm_public_ip" "nat_public_ip" {
-  for_each             = { for name, subnet in var.subnets : name => subnet if subnet.is_public == false }
-  name                = "nat-public-ip-${each.key}"
-  location            = var.location
+
+resource "azurerm_public_ip" "pip" {
+  for_each            = { for k, v in var.subnets : k => v if v.is_natgateway }
+  name                = "${var.pip_name}-${each.key}-pip"
   resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
+  location            = var.location
+  sku                 = var.sku
 
-  tags = merge(var.common_tags, tomap({
-    "Name" : "${var.project_name_prefix}-${var.environment}"
+  # If sku is "Standard", allocation_method must be "Static".
+  allocation_method = var.sku == "Standard" ? "Static" : var.allocation_method
+
+  tags = merge(var.default_tags, var.common_tags ,  tomap({
+    "Name" : "${var.name_prefix}"
+  }))
+} 
+
+resource "azurerm_nat_gateway" "nat" {
+  for_each            = { for k, v in var.subnets : k => v if v.is_natgateway } 
+  name                = "${var.gateway_name}-${each.key}-gateway" 
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku_name            = "Standard" 
+
+  tags = merge(var.default_tags, var.common_tags ,  tomap({
+    "Name" : "${var.name_prefix}"
   })) 
-}
-
-locals {
-  matching_subnets = [for subnet in var.subnets : subnet if var.subnet_type == "advance" && subnet.is_public == false]
-}
-
-resource "azurerm_nat_gateway" "main" {
-  count                   = length(local.matching_subnets) > 0 ? 1 : 0
-  name                    = "nat-gateway"
-  location                = var.location
-  resource_group_name     = var.resource_group_name
-  sku_name                = "Standard"
-  idle_timeout_in_minutes = 10
 } 
 
+resource "azurerm_nat_gateway_public_ip_association" "main" {
+  for_each = { for k, v in var.subnets : k => v if v.is_natgateway }
 
-resource "azurerm_nat_gateway_public_ip_association" "example" {
-  for_each             = { for name, subnet in var.subnets : name => subnet if subnet.is_public == false }
-  nat_gateway_id       = azurerm_nat_gateway.main[0].id
-  public_ip_address_id = azurerm_public_ip.nat_public_ip[each.key].id  
-} 
-
-
+  nat_gateway_id       = azurerm_nat_gateway.nat[each.key].id
+  public_ip_address_id = azurerm_public_ip.pip[each.key].id 
+}
 
 
-####  CREATE SIMPLE SUBNET 
+
+
+###  CREATE SIMPLE SUBNET 
 resource "azurerm_subnet" "simple_subnets" {
-  count                = var.subnet_type == "simple" ? var.num_simple_subnets : 0
-  name                 = "simple-subnet-${count.index + 1}"
+  count                = var.subnet_type == "subnet_simple" ? var.subnet_bits : 0
+  name                 = "subnet-simple-${count.index + 1}"
   resource_group_name  = var.resource_group_name
   virtual_network_name = var.vnet_name
   address_prefixes     = ["10.0.${count.index + 1}.0/24"] 
-}
+} 
