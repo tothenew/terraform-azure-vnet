@@ -53,7 +53,7 @@ module "route_table" {
   depends_on = [ module.subnets ]  
 }
 
-resource "azurerm_subnet_network_security_group_association" "main" {
+resource "azurerm_subnet_network_security_group_association" "subnet_nsg_association" {
   for_each                  = { for k, v in var.subnets : k => v if v.is_nsg }  
   subnet_id                 = module.subnets.subnet_ids[each.key]
   network_security_group_id = module.nsg_main.nsg_ids[each.key]
@@ -61,7 +61,7 @@ resource "azurerm_subnet_network_security_group_association" "main" {
   depends_on = [module.nsg_main] 
 }  
 
-resource "azurerm_subnet_nat_gateway_association" "main" { 
+resource "azurerm_subnet_nat_gateway_association" "subnet_nat_association" { 
   for_each          = { for k, v in var.subnets : k => v if v.is_natgateway }
   nat_gateway_id    = module.subnets.nat_gateway_ids[each.key]  
   subnet_id         = module.subnets.subnet_ids[each.key] 
@@ -69,7 +69,7 @@ resource "azurerm_subnet_nat_gateway_association" "main" {
   depends_on = [ module.subnets ] 
 }    
 
-resource "azurerm_subnet_route_table_association" "main" {
+resource "azurerm_subnet_route_table_association" "subnet_route_table_association" {
   for_each       = { for k, v in var.subnets : k => v if v.associate_with_route_table == true }
   subnet_id      = module.subnets.subnet_ids[each.key]
   route_table_id = module.route_table.main_route_table_id  

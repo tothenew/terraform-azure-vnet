@@ -39,7 +39,7 @@ resource "azurerm_nat_gateway" "nat" {
   })) 
 } 
 
-resource "azurerm_nat_gateway_public_ip_association" "main" {
+resource "azurerm_nat_gateway_public_ip_association" "nat_pip_association" {
   for_each = { for k, v in var.subnets : k => v if v.is_natgateway }
 
   nat_gateway_id       = azurerm_nat_gateway.nat[each.key].id
@@ -50,7 +50,7 @@ resource "azurerm_nat_gateway_public_ip_association" "main" {
 
 
 ###  CREATE SIMPLE SUBNET 
-resource "azurerm_subnet" "simple_subnets" {
+resource "azurerm_subnet" "subnet_simple" {
   count                = var.subnet_type == "subnet_simple" ? var.subnet_bits : 0
   name                 = "subnet-simple-${count.index + 1}"
   resource_group_name  = var.resource_group_name
