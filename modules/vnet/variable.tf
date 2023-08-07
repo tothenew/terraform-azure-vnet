@@ -42,7 +42,6 @@ variable "subnets" {
   description = "Map of subnets and their CIDR blocks."
   type        = map(object({
     address_prefixes =  list(string) 
-    #is_public   = bool
     associate_with_route_table = bool   
     is_nsg = optional(bool, false)
     network_security_group_association = optional(object({

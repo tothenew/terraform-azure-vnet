@@ -8,8 +8,7 @@ resource "azurerm_subnet" "subnet_main" {
   name                 = each.key 
   resource_group_name  = var.resource_group_name  
   virtual_network_name = var.vnet_name
-  address_prefixes     = each.value["address_prefixes"]
- # service_endpoints    = each.value["service_endpoints"] 
+  address_prefixes     = each.value["address_prefixes"] 
 } 
 
 

@@ -47,8 +47,7 @@ module "route_table" {
   location            = var.location
   route_table_name    = var.route_table_name
   name_prefix         = var.name_prefix 
-  common_tags         = var.common_tags
-  #subnet_type         = var.subnet_type 
+  common_tags         = var.common_tags 
   subnets             = var.subnets 
   default_tags        = var.default_tags 
   depends_on = [ module.subnets ]  
