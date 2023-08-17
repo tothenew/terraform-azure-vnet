@@ -58,7 +58,10 @@ variable "subnets" {
       })), [])
     }))
 
-    is_natgateway = optional(bool, false) 
+    is_natgateway = optional(bool, false)
+    service_delegation = optional(bool, false)
+    delegation_name = optional(string, "")
+    delegation_actions = optional(list(string), [])  
   }))
 
   default = { }
