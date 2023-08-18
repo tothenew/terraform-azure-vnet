@@ -1,7 +1,3 @@
-output "location" {
-  value = azurerm_resource_group.main.location
-}
-
 output "vnet_name" {
   value = module.vnet.vnet_name
 }
