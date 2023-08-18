@@ -18,14 +18,55 @@ Before you begin, ensure you have the following installed:
 - Azure CLI (version X.XX.X)
 - Azure Subscription
 
-## Getting Started
+## Getting Started with Azure Virtual Network  
 
-Follow the steps below to get started with the project:
+* This module contain the example child module which also contains the 2 sub modules i.e vnet-advance , vnet-simple
+* vnet-advance module specifies the user defined subnet configuration in which the users create the advance configuration in vnet i.e subnet delegation service , nsg association , route table association , nat gateway etc.
+* vnet-simple module specifies the simple configuration of virtual network i.e it will create only user define subnets and one virtual network.
+    
 
-1. Clone this repository to your local machine.
-2. Authenticate the Azure CLI with your Azure Subscription using `az login`.
-3. Initialize Terraform by running `terraform init`.
-4. If you want to create VNet with advanced subnet settings (enable natgateway , user defined security rule per subnet) etc.. then choose the vnet-advance module in example module. 
+This repository contains a Terraform module to create an Azure Virtual network.
+ 
+### Configure Azure Provider
+
+To configure the Azure provider, you need to set up the necessary Azure credentials. If you already have the Azure CLI installed and authenticated with Azure, Terraform will use the same credentials.
+
+If you haven't authenticated with Azure, you can do so by running:
+
+```bash
+az login
+```
+
+### Clone the Repository
+
+First, clone this repository to your local machine using the following command:
+
+```bash
+git clone <repository_url>
+cd <repository_name>
+```
+
+### Initialize Terraform
+
+Once you have cloned the repository, navigate to the module directory and initialize Terraform:
+
+```bash
+cd path/to/module_directory 
+terraform init
+```
+
+This will download the necessary plugins required for Terraform to work with Azure.
+
+### Apply the Terraform Configuration
+
+After configuring the input variables, you can apply the Terraform configuration to create the Azure Container Registry:
+
+```bash
+terraform apply
+```
+
+Terraform will show you the changes that will be applied to the infrastructure. Type `yes` to confirm and apply the changes.
+
 
 ## Variables
 
@@ -34,16 +75,36 @@ The project uses the following variables:
 - `location`: The Azure region where resources will be created.
 - `resource_group_name`: The name of the resource group where resources will be provisioned.
 - `vnet_name`: The name of the Virtual Network.
+- `address_spae`: CIDR range for vnet. 
 - `subnet_type`: The type of subnets to create.
+- `subnets` : It defines the user defined subnet configuration
 - `subnet_bits`: The number of simple subnets to create (used when `subnet_type = "subnet-simple"`). 
 
 ## Usage
 
-To provision the resources, modify the variables in `variables.tf` to match your desired configuration. Then, run the following Terraform commands:
-
-1. `terraform init`: Initializes the Terraform configuration.
-2. `terraform plan`: Shows the execution plan for the resources.
-3. `terraform apply`: Applies the changes and creates the Azure resources.
+To provision the resources, modify the variables in `variables.tf` to match your desired configuration.
+```bash
+module "vnet_main" {
+  #source = "git::https://github.com/DeepakBoora/terraform-azure-vnet-setup"
+  source = "../.."
+  address_space     = "10.0.0.0/16"  
+  subnets = {
+     "vm1" = {
+      address_prefixes = ["10.0.1.0/24"]
+      associate_with_route_table = true   
+      is_natgateway = true 
+      is_nsg = true 
+      service_delegation = true
+      delegation_name = "Microsoft.ContainerInstance/containerGroups"
+      delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"] 
+    }   
+    "vm2" = {
+    address_prefixes = ["10.0.2.0/24"]
+    associate_with_route_table = true    
+    } 
+  }
+}
+```
 
 ## Modules
 

@@ -1,5 +1,5 @@
 locals {
-  create_route_table = [for s in var.subnets : s if s.associate_with_route_table == true][0]  
+  create_route_table = [for s in var.subnets : s if s.associate_with_route_table == true] 
 }
 
 resource "azurerm_route_table" "main" {
