@@ -10,6 +10,8 @@ resource "azurerm_subnet" "subnet_main" {
   virtual_network_name = var.vnet_name
   address_prefixes     = each.value["address_prefixes"] 
 
+  service_endpoints   = each.value.service_endpoints 
+
     dynamic "delegation" {
     for_each = each.value.service_delegation ? [1] : []         
     content {

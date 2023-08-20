@@ -74,7 +74,8 @@ variable "subnets" {
     is_natgateway = optional(bool, false) 
     service_delegation = optional(bool, false)
     delegation_name = optional(string, "")
-    delegation_actions = optional(list(string), [])    
+    delegation_actions = optional(list(string), [])  
+    service_endpoints = optional(list(string), [])   
   }))
 
   default = { }
@@ -114,4 +115,9 @@ variable "default_tags" {
     "Scope" : "VNET-SETUP"
     "CreatedBy" : "Terraform"
   }
+}
+
+variable "virtual_network_peering" {
+  description = "Flag to determine if virtual network peering should be created."
+  type        = bool
 }

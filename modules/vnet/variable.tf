@@ -61,7 +61,8 @@ variable "subnets" {
     is_natgateway = optional(bool, false)
     service_delegation = optional(bool, false)
     delegation_name = optional(string, "")
-    delegation_actions = optional(list(string), [])  
+    delegation_actions = optional(list(string), []) 
+    service_endpoints = optional(list(string), [])  
   }))
 
   default = { }
@@ -91,3 +92,8 @@ variable "default_tags" {
   type        = map(string)
   description = "A map to add common tags to all the resources"
 } 
+
+variable "virtual_network_peering" {
+  description = "Flag to determine if virtual network peering should be created."
+  type        = bool
+}

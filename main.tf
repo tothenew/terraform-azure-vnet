@@ -17,4 +17,5 @@ module "vnet" {
   gateway_name        = var.gateway_name 
   sku                 = var.sku   
   allocation_method   = var.allocation_method 
+  virtual_network_peering = var.virtual_network_peering
 }

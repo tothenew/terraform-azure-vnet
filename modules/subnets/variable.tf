@@ -45,6 +45,7 @@ variable "subnets" {
     service_delegation = optional(bool, false)
     delegation_name = optional(string, "")
     delegation_actions = optional(list(string), []) 
+    service_endpoints = optional(list(string), []) 
   }))
 
   default = { }

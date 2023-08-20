@@ -9,6 +9,24 @@ resource "azurerm_virtual_network" "main" {
   }))  
 }
 
+
+## VIRTUAL NETWORK PEERING ..............##
+
+resource "azurerm_virtual_network_peering" "peering" {
+  count = var.virtual_network_peering ? 1 : 0 
+  name                         = "vnet-peering" 
+  resource_group_name          = var.resource_group_name
+  virtual_network_name         = azurerm_virtual_network.main.name
+  remote_virtual_network_id    = azurerm_virtual_network.main.id  
+  allow_virtual_network_access = true
+  allow_forwarded_traffic      = true
+
+  # `allow_gateway_transit` must be set to false for vnet Global Peering
+  allow_gateway_transit = false
+}
+
+
+
 # Create subnets in the VNet dynamically using the subnets module
 
 module "subnets" {
