@@ -29,7 +29,7 @@ This module creates the basic and advance network resources.
    ```bash
    is_nsg = true
    ``` 
-  v) associate_with_route_table : It is required. As one route table will be create for sure. So if users want to associate any subnet with route table the the users specifies associate_with_route_table = true.
+  v) associate_with_route_table : It is required. As one route table will be create when associate_with_route_table = true . So if users want to associate any subnet with route table the the users specifies associate_with_route_table = true.
    ```bash
    associate_with_route_table = true
    ```
@@ -37,6 +37,11 @@ This module creates the basic and advance network resources.
    ```bash
    service_delegation = true
    ``` 
+  vii) service_endpoints : It is also optional. Users includes this service endpoint in any subnets.
+  viii) virtual_network_peering : It is also optional. If users want to create peering then set to true for virtual_network_peering = true i.e
+  ```bash
+  virtual_network_peering = true
+  ```
 
 
 

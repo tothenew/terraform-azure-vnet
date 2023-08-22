@@ -1,32 +1,3 @@
-locals {
-  subnet_names = keys(var.subnets)
-  create_simple_subnets  = var.subnet_type == "subnet_simple"
-}
-
-resource "azurerm_subnet" "subnet_main" {
-  for_each             = var.subnets
-  name                 = each.key 
-  resource_group_name  = var.resource_group_name  
-  virtual_network_name = var.vnet_name
-  address_prefixes     = each.value["address_prefixes"] 
-
-  service_endpoints   = each.value.service_endpoints 
-
-    dynamic "delegation" {
-    for_each = each.value.service_delegation ? [1] : []         
-    content {
-      name = "delegation"
-
-      service_delegation {
-        name    = each.value.delegation_name 
-        actions = each.value.delegation_actions
-      }        
-    }
-    
-  }
-} 
-
-
 resource "azurerm_public_ip" "pip" {
   for_each            = { for k, v in var.subnets : k => v if v.is_natgateway }
   name                = "${var.pip_name}-${each.key}-pip"
@@ -61,14 +32,10 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_pip_association" {
   public_ip_address_id = azurerm_public_ip.pip[each.key].id 
 }
 
+resource "azurerm_subnet_nat_gateway_association" "subnet_nat_association" { 
+  for_each          = { for k, v in var.subnets : k => v if v.is_natgateway }
+  nat_gateway_id    = azurerm_nat_gateway.nat[each.key].id   
+  subnet_id         = azurerm_subnet.subnet_main[each.key].id 
 
-
-
-###  CREATE SIMPLE SUBNET 
-resource "azurerm_subnet" "subnet_simple" {
-  count                = var.subnet_type == "subnet_simple" ? var.subnet_bits : 0
-  name                 = "subnet-simple-${count.index + 1}"
-  resource_group_name  = var.resource_group_name
-  virtual_network_name = var.vnet_name
-  address_prefixes     = ["10.0.${count.index + 1}.0/24"] 
-} 
+  depends_on = [ azurerm_subnet.subnet_main ]  
+}  
