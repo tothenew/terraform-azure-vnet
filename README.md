@@ -18,6 +18,12 @@ Before you begin, ensure you have the following installed:
 - Azure CLI (version X.XX.X)
 - Azure Subscription
 
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [azurerm](#requirement\_terraform) | >= 3.0 |
+
 ## Getting Started with Azure Virtual Network  
 
 * This module contain the example child module which also contains the 2 sub modules i.e vnet-advance , vnet-simple
