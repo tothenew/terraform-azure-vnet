@@ -3,7 +3,7 @@ output "vnet_name" {
 }
 
 output "nsg_ids" {
-  value = module.vnet_main.nsg_ids 
+  value = module.vnet_main.nsg_ids
 }
 
 output "main_route_table_id" {
@@ -11,7 +11,7 @@ output "main_route_table_id" {
 }
 
 output "subnet_ids" {
-  value = module.vnet_main.subnet_ids 
+  value = module.vnet_main.subnet_ids
 }
 
 output "vnet_id" {

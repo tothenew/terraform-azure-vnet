@@ -116,16 +116,6 @@ module "vnet_main" {
 }
 ```
 
-## Modules
-
-| Name | Source |
-|------|--------|
-| <a name="nsg"></a> [nsg](#nsg) | ./modules/nsg |
-| <a name="route_table"></a> [route\_table](#route\_table) | ./modules/route_table |
-| <a name="subnets"></a> [subnets](#subnets) | .modules/subnets |
-| <a name="vnet"></a> [vnet](#vnet) | ./modules/vnet | 
-
-
 ## Resources
 
 | Name | Type |

@@ -10,12 +10,12 @@ resource "azurerm_route_table" "main" {
   #   address_prefix         = "0.0.0.0/0"
   #   next_hop_type          = "Internet"
   # }
-} 
+}
 
 resource "azurerm_subnet_route_table_association" "subnet_route_table_association" {
   for_each       = { for k, v in var.subnets : k => v if v.associate_with_route_table == true }
-  subnet_id      = azurerm_subnet.subnet_main[each.key].id 
-  route_table_id = azurerm_route_table.main[0].id  
+  subnet_id      = azurerm_subnet.subnet_main[each.key].id
+  route_table_id = azurerm_route_table.main[0].id
 
   depends_on = [azurerm_subnet.subnet_main, azurerm_route_table.main]
 } 
