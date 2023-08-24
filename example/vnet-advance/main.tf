@@ -30,6 +30,6 @@ module "vnet_main" {
       address_prefixes           = ["10.0.2.0/24"]
       associate_with_route_table = false
       service_endpoints          = ["Microsoft.AzureCosmosDB"]
-    } 
+    }
   }
 } 
