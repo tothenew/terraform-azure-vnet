@@ -57,19 +57,17 @@ variable "subnets" {
     address_prefixes           = list(string)
     associate_with_route_table = bool
     is_nsg                     = optional(bool, false)
-    network_security_group_association = optional(object({
-      security_rules = optional(list(object({
-        name                       = string
-        priority                   = number
-        direction                  = string
-        access                     = string
-        protocol                   = string
-        source_port_range          = string
-        destination_port_range     = string
-        source_address_prefix      = string
-        destination_address_prefix = string
-      })), [])
-    }))
+    security_rules = optional(list(object({
+      name                       = string
+      priority                   = number
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    })), [])
 
     is_natgateway      = optional(bool, false)
     service_delegation = optional(bool, false)
@@ -123,3 +121,23 @@ variable "virtual_network_peering" {
   default     = false
 }
 
+variable "vnet_peering_name" {
+  description = "Name of the Virtual Network Peering"
+  type        = string
+  default     = "vnet-peering"
+}
+
+variable "allow_virtual_network_access" {
+  type    = bool
+  default = true
+}
+
+variable "allow_forwarded_traffic" {
+  type    = bool
+  default = true
+}
+
+variable "allow_gateway_transit" {
+  type    = bool
+  default = false
+}

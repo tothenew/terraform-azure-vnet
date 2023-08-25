@@ -4,7 +4,7 @@ provider "azurerm" {
 
 ## Users can create the resource group here 
 resource "azurerm_resource_group" "main" {
-  name     = "my-vnet-rg1"
+  name     = "my-vnet-rg"
   location = "eastus"
 }
 
@@ -14,12 +14,12 @@ module "vnet_main" {
   location            = azurerm_resource_group.main.location
   address_space       = "10.0.0.0/16"
 
-  virtual_network_peering = true
+  virtual_network_peering = false
 
   subnets = {
     "vm1" = {
       address_prefixes           = ["10.0.1.0/24"]
-      associate_with_route_table = false
+      associate_with_route_table = true
       is_natgateway              = true
       is_nsg                     = true
       service_delegation         = true
