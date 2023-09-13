@@ -9,7 +9,7 @@ resource "azurerm_resource_group" "main" {
 }
 
 module "vnet_main" {
-  source = "git::https://github.com/tothenew/terraform-azure-vnet.git?ref=vnet-v1"
+  source = "git::https://github.com/tothenew/terraform-azure-vnet.git"
 
   virtual_network_peering = true
 
