@@ -13,13 +13,13 @@ resource "azurerm_virtual_network" "main" {
 
 resource "azurerm_virtual_network_peering" "peering" {
   count                        = var.virtual_network_peering ? 1 : 0
-  name                         = "vnet-peering"
+  name                         = var.vnet_peering_name
   resource_group_name          = var.resource_group_name
   virtual_network_name         = azurerm_virtual_network.main.name
   remote_virtual_network_id    = azurerm_virtual_network.main.id
-  allow_virtual_network_access = true
-  allow_forwarded_traffic      = true
+  allow_virtual_network_access = var.allow_virtual_network_access
+  allow_forwarded_traffic      = var.allow_forwarded_traffic
 
   # `allow_gateway_transit` must be set to false for vnet Global Peering
-  allow_gateway_transit = false
+  allow_gateway_transit = var.allow_gateway_transit
 }
