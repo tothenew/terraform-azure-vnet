@@ -1,9 +1,9 @@
  ##  VNET-ADVANCE EXAMPLE
 
-[![Lint Status](https://github.com/tothenew/terraform-azure-vnet/workflows/Lint/badge.svg)](https://github.com/tothenew/terraform-azure-vnet/actions)
-[![LICENSE](https://img.shields.io/github/license/tothenew/terraform-azure-vnet)](https://github.com/tothenew/terraform-azure-vnet/blob/master/LICENSE)
+[![Lint Status](https://github.com/tothenew/terraform-aws-template/workflows/Lint/badge.svg)](https://github.com/tothenew/terraform-aws-template/actions)
+[![LICENSE](https://img.shields.io/github/license/tothenew/terraform-aws-template)](https://github.com/tothenew/terraform-aws-template/blob/master/LICENSE) 
 
-This module creates the basic and advance network resources.
+This module creates the basic and advance network resources for virtual network in azure . 
 
 ## Resource Created
 
